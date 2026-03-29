@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import appRoutes from "./routes";
+import router from "./routes/user/User.route"
 // import { swaggerSetup } from "./swagger";
 
 const app: Application = express();
@@ -46,6 +47,8 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok", message: "KpReliable backend is running" });
 });
 
+// app.use("/api/v1", appRoutes);
+app.use("/api/v1", router)
 appRoutes(app);
 
 app.use((req: Request, res: Response) => {
