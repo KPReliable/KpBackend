@@ -5,6 +5,8 @@ interface IUser {
     password: string;
     role?: 'user' | 'admin';
     createdAt?: Date;
+    questions:String;
+    answers:String;
 }
 const userSchema = new Schema<IUser>({
     name: {
@@ -34,6 +36,13 @@ const userSchema = new Schema<IUser>({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    questions:{
+    type:String,
+    },
+    answers:{
+        type:String,
     }
+
 },{timestamps:true});
 export const User=mongoose.model('User', userSchema);

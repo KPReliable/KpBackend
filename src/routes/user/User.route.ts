@@ -1,9 +1,13 @@
 import express from "express";
-import { userTest,registerUser,loginUser } from "../../controllers/user/User.controller";
+import {UserRegister,UserLogin,ComapnyFaqs,ComapnyGettingFaqs} from "../../constants/Routes.constant";
+import { userTest,registerUser,loginUser,UserFaq,UsergettingFaq } from "../../controllers/user/User.controller";
 
 const router = express.Router();
 
 router.get("/user", userTest);
-router.post("/register",registerUser);
-router.post("/login",loginUser);
+router.post(UserRegister,registerUser);
+router.post(UserLogin,loginUser);
+router.post(ComapnyFaqs,UserFaq);
+router.get(ComapnyGettingFaqs,UsergettingFaq);
+
 export default router
