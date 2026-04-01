@@ -1,14 +1,15 @@
 import app from "./app";
+import dotenv from "dotenv";
+dotenv.config();
 
 import connectDb from "./DBconnection/connectDb";
+const BASE_URL = process.env.BASE_URL;
 
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 8080;
 
 const server = app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server running on ${port}`);
 });
-
 server.on("error", (error: NodeJS.ErrnoException) => {
   if (error.code === "EADDRINUSE") {
     // eslint-disable-next-line no-console
