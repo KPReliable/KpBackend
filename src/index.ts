@@ -1,6 +1,7 @@
-import app from "./app";
 import dotenv from "dotenv";
 dotenv.config();
+
+import app from "./app";
 
 import connectDb from "./DBconnection/connectDb";
 const BASE_URL = process.env.BASE_URL;
