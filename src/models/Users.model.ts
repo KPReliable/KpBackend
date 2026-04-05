@@ -8,6 +8,7 @@ interface IUser {
     createdAt?: Date;
     questions:String;
     answers:String;
+    phone:String;
 }
 const userSchema = new Schema<IUser>({
   
@@ -29,6 +30,14 @@ const userSchema = new Schema<IUser>({
         required: true,
         trim:true,
         lowercase:true
+    },
+    phone: {
+        type:String,
+        required:true,
+        unique:true,
+        trim:true,
+        lowercase:true
+
     },
     role: {
         type: String,
