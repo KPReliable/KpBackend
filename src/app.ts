@@ -12,7 +12,8 @@ app.use(helmet());
 
 const allowedOrigins = [
   'http://localhost',
-  'https://kpbackend-production.up.railway.app'
+  'https://kpbackend-production.up.railway.app',
+  " http://localhost:3000"
 ];
 
 app.use(cors({
