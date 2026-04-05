@@ -9,6 +9,10 @@ export const registerUser = async(req:Request,res:Response)=>{
     }
     const hashedPassword=await bcrypt.hash(password,10);
     const createdUser=await User.create({name,email,password:hashedPassword});
-        
-    res.status(201).json({status:"success",message:"User registered successfully",data:createdUser})
+
+    if(!createdUser){
+       return res.status(500).json({status:"error",message:"Error creating user"})
+    }
+    
+    res.status(201).json({status:"success",message:"User registered successfully"})
 }
