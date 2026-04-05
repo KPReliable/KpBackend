@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 
 export const registerUser = async(req:Request,res:Response)=>{
     const {name,email,password}=req.body;
+   
     if(!name || !email || !password){
         return res.status(400).json({status:"error",message:"Please provide name,email and password"})
     }
