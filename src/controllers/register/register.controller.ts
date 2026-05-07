@@ -1,19 +1,97 @@
-import { User } from "../../models/Users.model";
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
-export const registerUser = async(req:Request,res:Response)=>{
-    const {name,email,password,phone}=req.body;
-   
-    if(!name || !email || !password){
-        return res.status(400).json({status:"error",message:"Please provide name,email and password"})
-    }
-    const hashedPassword=await bcrypt.hash(password,10);
-    const createdUser=await User.create({name,email,password:hashedPassword,phone});
+import { User } from "../../models/Users.model";
+import { OTP } from "../../models/OTP.model";
 
-    if(!createdUser){
-       return res.status(500).json({status:"error",message:"Error creating user"})
+// ---------------- REGISTER CONTROLLER ----------------
+export const registerController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      name,
+      orgName,
+      email,
+      mobile,
+      countryCode,
+    } = req.body;
+
+    // ---------------- VALIDATION ----------------
+    if (
+      !name ||
+      !orgName ||
+      !email ||
+      !mobile ||
+      !countryCode
+    ) {
+      res.status(400).json({
+        status: "error",
+        message: "All fields are required",
+      });
+
+      return;
     }
-    
-    res.status(201).json({status:"success",message:"User registered successfully"})
+
+    // ---------------- CHECK EXISTING USER ----------------
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { mobile },
+      ],
+    });
+ 
+    if (!existingUser) {
+    await User.create({
+    name,
+    orgName,
+    email,
+    mobile,
+    countryCode,
+  });
 }
+    
+    // ---------------- HARDCODED OTP ----------------
+    const generatedOTP = "123456";
+
+    // ---------------- GENERATE VERIFICATION ID ----------------
+    const verificationId =
+      crypto.randomBytes(16).toString("hex");
+
+    // ---------------- OVERRIDE EXISTING OTP ----------------
+    await OTP.findOneAndUpdate(
+      {
+        verificationId,
+      },
+      {
+        verificationId,
+        otp: generatedOTP,
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    // ---------------- RESPONSE ----------------
+    res.status(200).json({
+      status: "success",
+      message: "OTP generated successfully",
+      data: {
+        verificationId,
+        otp: generatedOTP,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "REGISTER CONTROLLER ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};

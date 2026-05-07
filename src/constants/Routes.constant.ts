@@ -1,5 +1,2 @@
 export const UserRegister="/register"
-export const UserLogin="/login"
-export const ComapnyFaqs="/faq" 
-export const ComapnyGettingFaqs="/gettingfaq"
-export const contact="/contactus"
+export const VerifyOtp="/verifyOtp"
