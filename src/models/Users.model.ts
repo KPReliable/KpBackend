@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   mobile: string;
   countryCode: string;
+  isVerified:boolean;
 
   role?: "user" | "admin";
 
@@ -47,6 +48,14 @@ const userSchema = new Schema<IUser>(
       required: true,
       default: "+91",
       trim: true,
+    },
+
+    isVerified:{
+      type:Boolean,
+      required:true,
+      default:false,
+      trim:true
+
     },
 
   

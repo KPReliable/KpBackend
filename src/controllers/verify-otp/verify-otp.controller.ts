@@ -9,21 +9,41 @@ export const verifyOTPController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const {
-      verificationId,
-      otp,
-      name,
-      orgName,
-      email,
-      mobile,
-      countryCode,
-    } = req.body;
+    let { verificationId, otp } = req.body;
 
-    // ---------------- CHECK OTP RECORD ----------------
+    // ---------------- SANITIZE INPUTS ----------------
+    verificationId = verificationId?.trim();
+    otp = otp?.trim();
+
+    // ---------------- REQUIRED VALIDATION ----------------
+    if (!verificationId || !otp) {
+      res.status(400).json({
+        status: "error",
+        message:
+          "Verification ID and OTP are required",
+      });
+
+      return;
+    }
+
+    // ---------------- OTP FORMAT VALIDATION ----------------
+    const otpRegex = /^[0-9]{6}$/;
+
+    if (!otpRegex.test(otp)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid OTP format",
+      });
+
+      return;
+    }
+
+    // ---------------- FIND OTP RECORD ----------------
     const existingOTP = await OTP.findOne({
       verificationId,
     });
 
+    // OTP EXPIRED OR NOT FOUND
     if (!existingOTP) {
       res.status(404).json({
         status: "error",
@@ -44,14 +64,39 @@ export const verifyOTPController = async (
       return;
     }
 
-    // ---------------- CREATE USER ----------------
-    const createdUser = await User.create({
-      name,
-      orgName,
-      email,
-      mobile,
-      countryCode,
+    // ---------------- FIND USER ----------------
+    const existingUser = await User.findOne({
+      email: existingOTP.email,
     });
+
+    if (!existingUser) {
+      res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+
+      return;
+    }
+
+    // ---------------- CHECK IF ALREADY VERIFIED ----------------
+    if (existingUser.isVerified) {
+      // DELETE OTP IF USER ALREADY VERIFIED
+      await OTP.deleteOne({
+        verificationId,
+      });
+
+      res.status(400).json({
+        status: "error",
+        message: "User already verified",
+      });
+
+      return;
+    }
+
+    // ---------------- VERIFY USER ----------------
+    existingUser.isVerified = true;
+
+    await existingUser.save();
 
     // ---------------- DELETE OTP ----------------
     await OTP.deleteOne({
@@ -59,11 +104,17 @@ export const verifyOTPController = async (
     });
 
     // ---------------- RESPONSE ----------------
-    res.status(201).json({
+    res.status(200).json({
       status: "success",
-      message:
-        "User verified and registered successfully",
-      data: createdUser,
+      message: "OTP verified successfully",
+
+      data: {
+        userId: existingUser._id,
+        email: existingUser.email,
+        mobile: existingUser.mobile,
+        isVerified:
+          existingUser.isVerified,
+      },
     });
   } catch (error) {
     console.error(

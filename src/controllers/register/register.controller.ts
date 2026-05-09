@@ -10,7 +10,7 @@ export const registerController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const {
+    let {
       name,
       orgName,
       email,
@@ -18,7 +18,14 @@ export const registerController = async (
       countryCode,
     } = req.body;
 
-    // ---------------- VALIDATION ----------------
+    // ---------------- SANITIZE INPUTS ----------------
+    name = name?.trim();
+    orgName = orgName?.trim();
+    email = email?.trim().toLowerCase();
+    mobile = mobile?.trim();
+    countryCode = countryCode?.trim();
+
+    // ---------------- REQUIRED VALIDATION ----------------
     if (
       !name ||
       !orgName ||
@@ -34,37 +41,147 @@ export const registerController = async (
       return;
     }
 
-    // ---------------- CHECK EXISTING USER ----------------
-    const existingUser = await User.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { mobile },
-      ],
-    });
- 
-    if (existingUser) {
-     res.status(200).json({
-       status: "success",
-       message: "User already exists",
-     });
-  return;
-}
-    
-    // ---------------- HARDCODED OTP ----------------
-    const generatedOTP = "123456";
+    // ---------------- NAME VALIDATION ----------------
+    const nameRegex = /^[A-Za-z\s]{2,50}$/;
+
+    if (!nameRegex.test(name)) {
+      res.status(400).json({
+        status: "error",
+        message:
+          "Name must contain only letters and spaces",
+      });
+
+      return;
+    }
+
+    // ---------------- ORGANIZATION VALIDATION ----------------
+    const orgNameRegex =
+      /^[A-Za-z0-9\s&.,'-]{2,100}$/;
+
+    if (!orgNameRegex.test(orgName)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid organization name",
+      });
+
+      return;
+    }
+
+    // ---------------- EMAIL VALIDATION ----------------
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        status: "error",
+        message: "Invalid email format",
+      });
+
+      return;
+    }
+
+    // ---------------- MOBILE VALIDATION ----------------
+    const mobileRegex = /^[0-9]{10}$/;
+
+    if (!mobileRegex.test(mobile)) {
+      res.status(400).json({
+        status: "error",
+        message:
+          "Mobile number must be 10 digits",
+      });
+
+      return;
+    }
+
+    // ---------------- COUNTRY CODE VALIDATION ----------------
+    const countryCodeRegex = /^\+\d{1,4}$/;
+
+    if (!countryCodeRegex.test(countryCode)) {
+      res.status(400).json({
+        status: "error",
+        message:
+          "Invalid country code format",
+      });
+
+      return;
+    }
+
+    // ---------------- CHECK EMAIL USER ----------------
+    const existingEmailUser =
+      await User.findOne({ email });
+
+    if (
+      existingEmailUser &&
+      existingEmailUser.mobile !== mobile
+    ) {
+      res.status(409).json({
+        status: "error",
+        message:
+          "Email already linked with another account",
+      });
+
+      return;
+    }
+
+    // ---------------- CHECK MOBILE USER ----------------
+    const existingMobileUser =
+      await User.findOne({ mobile });
+
+    if (
+      existingMobileUser &&
+      existingMobileUser.email !== email
+    ) {
+      res.status(409).json({
+        status: "error",
+        message:
+          "Mobile already linked with another account",
+      });
+
+      return;
+    }
+
+    // ---------------- FIND OR CREATE USER ----------------
+    let user =
+      existingEmailUser || existingMobileUser;
+
+    const isNewUser = !user;
+
+    if (!user) {
+      user = await User.create({
+        name,
+        orgName,
+        email,
+        mobile,
+        countryCode,
+
+        isVerified: false,
+      });
+    }
+
+    // ---------------- GENERATE OTP ----------------
+    const generatedOTP = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     // ---------------- GENERATE VERIFICATION ID ----------------
     const verificationId =
       crypto.randomBytes(16).toString("hex");
 
-    // ---------------- OVERRIDE EXISTING OTP ----------------
+    // ---------------- SAVE / UPDATE OTP ----------------
     await OTP.findOneAndUpdate(
       {
-        verificationId,
+        email,
       },
       {
+        email,
+        mobile,
+
         verificationId,
         otp: generatedOTP,
+
+        expiresAt: new Date(
+          Date.now() + 5 * 60 * 1000
+        ),
       },
       {
         upsert: true,
@@ -72,21 +189,46 @@ export const registerController = async (
       }
     );
 
+    // ---------------- TODO ----------------
+    // SEND OTP USING EMAIL / SMS SERVICE
+
     // ---------------- RESPONSE ----------------
-    res.status(200).json({
+    res.status(isNewUser ? 201 : 200).json({
       status: "success",
-      message: "OTP generated successfully",
+
+      message: isNewUser
+        ? "User registered and OTP generated successfully"
+        : "OTP generated successfully",
+
       data: {
+        userId: user._id,
+
         verificationId,
-        otp: generatedOTP,
+
+        // ...(process.env.NODE_ENV ===
+        //   "development" && {
+          otp: generatedOTP,
+        // }),
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "REGISTER CONTROLLER ERROR:",
       error
     );
 
+    // ---------------- HANDLE DUPLICATE KEY ERROR ----------------
+    if (error.code === 11000) {
+      res.status(409).json({
+        status: "error",
+        message:
+          "User already exists with provided email or mobile",
+      });
+
+      return;
+    }
+
+    // ---------------- INTERNAL SERVER ERROR ----------------
     res.status(500).json({
       status: "error",
       message: "Internal server error",
