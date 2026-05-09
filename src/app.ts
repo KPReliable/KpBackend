@@ -13,6 +13,7 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost',
   'https://kpbackend-production.up.railway.app',
+  'https://kp-backend-ruddy.vercel.app/',
   'https://kprt-website.vercel.app',
   "http://localhost:3000"
 ];

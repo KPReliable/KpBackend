@@ -6,7 +6,7 @@ import app from "./app";
 import connectDb from "./DBconnection/connectDb";
 const BASE_URL = process.env.BASE_URL;
 
-const port = Number(process.env.PORT) || 8080;
+const port = Number(process.env.PORT) || 8000;
 
 const server = app.listen(port, () => {
   console.log(`Server running on ${port}`);
