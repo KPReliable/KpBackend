@@ -33,7 +33,7 @@ const otpSchema = new Schema<IOTP>(
     },
   },
   {
-    timestamps: false,
+    timestamps: true,
   }
 );
 

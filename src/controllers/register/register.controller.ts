@@ -42,14 +42,12 @@ export const registerController = async (
       ],
     });
  
-    if (!existingUser) {
-    await User.create({
-    name,
-    orgName,
-    email,
-    mobile,
-    countryCode,
-  });
+    if (existingUser) {
+     res.status(200).json({
+       status: "success",
+       message: "User already exists",
+     });
+  return;
 }
     
     // ---------------- HARDCODED OTP ----------------
