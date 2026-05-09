@@ -60,7 +60,7 @@ export const verifyOTPController = async (
         status: "error",
         message: "Invalid OTP",
       });
-
+ 
       return;
     }
 
@@ -79,19 +79,19 @@ export const verifyOTPController = async (
     }
 
     // ---------------- CHECK IF ALREADY VERIFIED ----------------
-    if (existingUser.isVerified) {
-      // DELETE OTP IF USER ALREADY VERIFIED
-      await OTP.deleteOne({
-        verificationId,
-      });
+    // if (existingUser.isVerified) {
+    //   // DELETE OTP IF USER ALREADY VERIFIED
+    //   await OTP.deleteOne({
+    //     verificationId,
+    //   });
 
-      res.status(400).json({
-        status: "error",
-        message: "User already verified",
-      });
+    //   res.status(400).json({
+    //     status: "error",
+    //     message: "User already verified",
+    //   });
 
-      return;
-    }
+    //   return;
+    // }
 
     // ---------------- VERIFY USER ----------------
     existingUser.isVerified = true;
