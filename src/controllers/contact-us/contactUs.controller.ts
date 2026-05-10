@@ -56,6 +56,17 @@ export const contactUs = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
+  const existingUser = await contactSchema.findOne({email})
+
+  if(existingUser){
+      res.status(409).json({
+      status: "error",
+      error: "Aleardy contacted we will connect soon.",
+    });
+
+    return
+  }
+
   try {
     const savedContact = await contactSchema.create({
       name,
