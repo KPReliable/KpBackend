@@ -8,7 +8,7 @@ interface ContactRequestBody {
   name: string;
   email: string;
   message: string;
-  phonenumber: string;
+  mobile: string;
   ServiceInterestedIn?: string;
 }
 
@@ -18,7 +18,7 @@ const REQUIRED_FIELDS: (keyof ContactRequestBody)[] = [
   "name",
   "email",
   "message",
-  "phonenumber",
+  "mobile",
 ];
 
 
@@ -42,11 +42,11 @@ const sendConfirmationEmail = (email: string, name: string): void => {
 // ─── Controller ───────────────────────────────────────────────────────────────
 
 export const contactUs = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, message, phonenumber, ServiceInterestedIn } =
+  const { name, email, message, mobile, ServiceInterestedIn } =
     req.body as ContactRequestBody;
 
   // Validate required fields
-  const missingFields = getMissingFields({ name, email, message, phonenumber });
+  const missingFields = getMissingFields({ name, email, message, mobile });
   if (missingFields.length > 0) {
     res.status(400).json({
       success: false,
@@ -61,7 +61,7 @@ export const contactUs = async (req: Request, res: Response): Promise<void> => {
       name,
       email,
       message,
-      phonenumber,
+      mobile,
       ServiceInterestedIn,
     });
 

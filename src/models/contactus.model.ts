@@ -4,7 +4,7 @@ export interface IContactUs extends Document {
     name: string;
     email: string;
     message: string;
-    phonenumber: string;
+    mobile: string;
     // ServiceInterestedIn :string;
 }
 
@@ -24,7 +24,7 @@ const ContactUsSchema = new Schema<IContactUs>({
         type: String,
         required: [true, "Message is required"],
     },
-    phonenumber: {
+    mobile: {
 
         type: String,
         required: [true, "Phone number is required"],

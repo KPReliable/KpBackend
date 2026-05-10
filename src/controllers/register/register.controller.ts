@@ -159,10 +159,42 @@ export const registerController = async (
     }
 
     // ---------------- GENERATE OTP ----------------
-    const generatedOTP = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+ // ---------------- CHECK OTP COOLDOWN ----------------
+const existingOTP = await OTP.findOne({
+  email,
+});
 
+if (existingOTP) {
+  const now = Date.now();
+
+  const otpCreatedTime = new Date(
+    (existingOTP.updatedAt ||
+      existingOTP.createdAt) as Date
+  ).getTime();
+
+  const diffInSeconds = Math.floor(
+    (now - otpCreatedTime) / 1000
+  );
+
+  // BLOCK OTP REGENERATION FOR 30 SECONDS
+  if (diffInSeconds < 30) {
+    res.status(429).json({
+      status: "error",
+      message:
+        "Please wait before requesting another OTP",
+
+      retryAfter:
+        30 - diffInSeconds,
+    });
+
+    return;
+  }
+}
+
+// ---------------- GENERATE OTP ----------------
+const generatedOTP = Math.floor(
+  100000 + Math.random() * 900000
+).toString();
     // ---------------- GENERATE VERIFICATION ID ----------------
     const verificationId =
       crypto.randomBytes(16).toString("hex");
