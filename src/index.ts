@@ -20,7 +20,7 @@ server.on("error", (error: NodeJS.ErrnoException) => {
   throw error;
 });
 
-connectDb().then(() => {
+ await connectDb().then(() => {
   // eslint-disable-next-line no-console
   console.log("Connected to MongoDB");
 }).catch((err) => {
