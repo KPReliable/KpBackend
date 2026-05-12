@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { User } from "../../models/Users.model";
 import { OTP } from "../../models/OTP.model";
 import connectDb from "../../DBconnection/connectDb";
+import twilio from "twilio";
 
 // ---------------- REGISTER CONTROLLER ----------------
 export const registerController = async (
@@ -221,6 +222,27 @@ const generatedOTP = Math.floor(
         new: true,
       }
     );
+
+
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
+let normalizedNumber = mobile.trim();
+    if (!normalizedNumber.startsWith("+")) {
+      // If no +, assume it's missing country code
+      // For India: prepend +91
+      normalizedNumber = "+91" + normalizedNumber.replace(/\D/g, "");
+    }
+
+
+   const message = await twilioClient.messages.create({
+      body: `Your OTP is: ${generatedOTP}. Valid for 10 minutes. Do not share with anyone.`,
+      from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
+      to: normalizedNumber, // Recipient number
+    });
+
 
     // ---------------- TODO ----------------
     // SEND OTP USING EMAIL / SMS SERVICE
