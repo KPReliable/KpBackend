@@ -12,4 +12,8 @@ const ContactUs = {
   "Contact":"/contactus"
 }
 
-export {UserRoutes,BaseEndpoints,ContactUs}
+const Schedule = {
+  "schedule":"/booking/available-slots"
+}
+
+export {UserRoutes,BaseEndpoints,ContactUs,Schedule}
