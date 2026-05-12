@@ -166,26 +166,26 @@ export const registerController = async (
     const existingEmailUser =
       await User.findOne({ email });
 
-    if (
-      existingEmailUser &&
-      existingEmailUser.mobile !== mobile
-    ) {
-      // Same email, different mobile = conflict
-      console.warn(
-        "[REGISTER] Email conflict:",
-        email,
-        "linked to",
-        existingEmailUser.mobile
-      );
+    // if (
+    //   existingEmailUser &&
+    //   existingEmailUser.mobile !== mobile
+    // ) {
+    //   // Same email, different mobile = conflict
+    //   console.warn(
+    //     "[REGISTER] Email conflict:",
+    //     email,
+    //     "linked to",
+    //     existingEmailUser.mobile
+    //   );
 
-      res.status(409).json({
-        status: "error",
-        message:
-          "Email already linked with another account",
-        code: "EMAIL_CONFLICT",
-      });
-      return;
-    }
+    //   res.status(409).json({
+    //     status: "error",
+    //     message:
+    //       "Email already linked with another account",
+    //     code: "EMAIL_CONFLICT",
+    //   });
+    //   return;
+    // }
 
     // ============================================================
     // STEP 10: CHECK IF MOBILE ALREADY EXISTS
@@ -196,26 +196,26 @@ export const registerController = async (
     const existingMobileUser =
       await User.findOne({ mobile });
 
-    if (
-      existingMobileUser &&
-      existingMobileUser.email !== email
-    ) {
-      // Same mobile, different email = conflict
-      console.warn(
-        "[REGISTER] Mobile conflict:",
-        mobile,
-        "linked to",
-        existingMobileUser.email
-      );
+    // if (
+    //   existingMobileUser &&
+    //   existingMobileUser.email !== email
+    // ) {
+    //   // Same mobile, different email = conflict
+    //   console.warn(
+    //     "[REGISTER] Mobile conflict:",
+    //     mobile,
+    //     "linked to",
+    //     existingMobileUser.email
+    //   );
 
-      res.status(409).json({
-        status: "error",
-        message:
-          "Mobile already linked with another account",
-        code: "MOBILE_CONFLICT",
-      });
-      return;
-    }
+    //   res.status(409).json({
+    //     status: "error",
+    //     message:
+    //       "Mobile already linked with another account",
+    //     code: "MOBILE_CONFLICT",
+    //   });
+    //   return;
+    // }
 
     // ============================================================
     // STEP 11: CHECK IF BOOKED (ALREADY COMPLETED)
