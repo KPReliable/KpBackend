@@ -4,17 +4,19 @@ dotenv.config();
 import app from "./app";
 import connectDb from "./DBconnection/connectDb";
 
-// CONNECT DATABASE
-connectDb()
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error(
-      "Failed to connect to MongoDB:",
-      err
-    );
-  });
+// Await connection before exporting (for serverless)
+const initializeApp = async () => {
+  try {
+    await connectDb();
+    console.log("Database connected, app ready");
+    return app;
+  } catch (err) {
+    console.error("Failed to initialize app:", err);
+    process.exit(1);  // Or handle gracefully
+  }
+};
 
-// EXPORT APP FOR VERCEL
-export default app;
+export default initializeApp().catch((err) => {
+  console.error(err);
+  return null;  // Fallback
+});

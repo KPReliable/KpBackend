@@ -1,9 +1,7 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 const connectDb = async () => {
-  if (isConnected) {
+  if (mongoose.connection.readyState >= 1) {  // 1 = connected, 2 = connecting
     return;
   }
 
@@ -14,15 +12,14 @@ const connectDb = async () => {
   }
 
   try {
-    const db = await mongoose.connect(uri, {
+    await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 30000,
+      bufferCommands: false,  // Disable buffering to fail fast
     });
-
-    isConnected = db.connections[0].readyState === 1;
 
     console.log("MongoDB Connected");
   } catch (error) {
-    console.log(error);
+    console.error("MongoDB connection failed:", error);
     throw error;
   }
 };

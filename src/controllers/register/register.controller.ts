@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 import { User } from "../../models/Users.model";
 import { OTP } from "../../models/OTP.model";
+import connectDb from "../../DBconnection/connectDb";
 
 // ---------------- REGISTER CONTROLLER ----------------
 export const registerController = async (
@@ -10,6 +11,8 @@ export const registerController = async (
   res: Response
 ): Promise<void> => {
   try {
+    await connectDb();  // Ensure connection before operations
+
     let {
       name,
       orgName,
