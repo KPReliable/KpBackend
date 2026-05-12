@@ -9,7 +9,7 @@ import { Schedule } from "../../constants/Routes.constant";
 
 const router = express.Router();
 
-router.post(Schedule.schedule,getAvailableSlots);
+router.get(Schedule.schedule,getAvailableSlots);
 
 
 
