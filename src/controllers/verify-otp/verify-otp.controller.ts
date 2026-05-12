@@ -94,7 +94,7 @@ export const verifyOTPController = async (
     // }
 
     // ---------------- VERIFY USER ----------------
-    existingUser.isVerified = true;
+    existingUser.booked = true;
 
     await existingUser.save();
 
@@ -113,7 +113,7 @@ export const verifyOTPController = async (
         email: existingUser.email,
         mobile: existingUser.mobile,
         isVerified:
-          existingUser.isVerified,
+          existingUser.booked,
       },
     });
   } catch (error) {

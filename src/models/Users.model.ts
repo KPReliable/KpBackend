@@ -6,7 +6,7 @@ export interface IUser extends Document {
   email: string;
   mobile: string;
   countryCode: string;
-  isVerified:boolean;
+  booked:boolean;
 
   role?: "user" | "admin";
 
@@ -50,7 +50,7 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
 
-    isVerified:{
+    booked:{
       type:Boolean,
       required:true,
       default:false,

@@ -141,12 +141,10 @@ export const registerController = async (
     }
 
     // ---------------- FIND OR CREATE USER ----------------
-    let user =
-      existingEmailUser || existingMobileUser;
-
+    let user = await User.findOne({ email })
     const isNewUser = !user;
 
-    if (!user) {
+    if (!(user?.booked)) {
       user = await User.create({
         name,
         orgName,
