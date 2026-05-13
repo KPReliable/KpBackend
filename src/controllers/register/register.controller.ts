@@ -523,6 +523,7 @@ export const registerController = async (
         email: user.email,
         mobile: user.mobile,
         verificationId,
+        otp:generatedOTP,
         expiresIn: "5 minutes",
         // ⚠️ DEVELOPMENT ONLY - Remove in production
         ...(process.env.NODE_ENV === "development" && {
